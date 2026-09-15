@@ -23,45 +23,51 @@ class ListaEncadeada:
 
         self.tamanho += 1
 
-    def buscar_dados(self, numero):
+    def buscar_dados(self, condicao):
         atual = self.inicio
 
         while atual:
-            if atual.dado.numero == numero:
+            if condicao(atual.dado):
                 return atual.dado
             else:
                 atual = atual.proximo
 
         return None
 
-    def remover_dados(self, numero):
-            atual = self.inicio
-            if atual.dado.numero == numero:
+    def remover_dados(self, condicao):
+        atual = self.inicio
+
+        if atual is not None:
+            if condicao(atual.dado):
                 self.inicio = atual.proximo
                 self.tamanho -= 1
 
                 if self.inicio == None:
                     self.fim = None
+                        
+                return atual.dado
 
             else:
                 anterior = atual
                 atual = atual.proximo
-                
+                    
                 while atual:
 
-                    if atual.dado.numero == numero:
+                    if condicao(atual.dado):
                         anterior.proximo = atual.proximo
                         self.tamanho -= 1
 
                         if atual == self.fim:
                             self.fim = anterior 
-                        return atual
-                    
+                        return atual.dado
+                        
                     else:
                         anterior = atual
                         atual = atual.proximo
 
                 return None
+        else:
+            return None
 
                     
 
