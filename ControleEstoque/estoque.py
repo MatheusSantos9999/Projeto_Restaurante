@@ -1,5 +1,5 @@
 import re
-from EstruturaDados import lista_encadeada
+from EstruturaDados import lista_encadeada, fila
 from datetime import datetime
 
 class Estoque:
@@ -7,17 +7,51 @@ class Estoque:
         self.lista = lista_encadeada.ListaEncadeada()
 
     def repor_estoque(self, produto):
-        nome_produto = produto.nome_produto
-        self.lista.adicionar_dados((nome_produto, produto))
+        resultado = self.lista.buscar_dados(lambda item: item[0] == produto.nome_produto)
+        
+        if resultado is not None:
+            resultado[1].enfileirar(produto)
 
+        else:
+            fila_produto = fila.Fila()
+            fila_produto.enfileirar(produto)
+            self.lista.adicionar_dados((produto.nome_produto,fila_produto))
+
+    def dar_baixa(self, nome_produto, quantidade_produto):
+        resultado = self.lista.buscar_dados(lambda item: item[0] == nome_produto)
+
+        if resultado is None:
+            raise ValueError('O produto não existe no estoque')
+
+        else:
+            fila_do_produto = resultado[1]
+            lote_atual = fila_do_produto.inicio.dado
+            quantidade_restante = quantidade_produto
+            
+            while lote_atual:
+                if lote_atual.quantidade_estoque > quantidade_restante:
+                    lote_atual.quantidade_estoque -= quantidade_produto
+            
+                elif lote_atual.quantidade_estoque < quantidade_restante: 
+                   fila_do_produto.desenfileirar()
+                   break
+
+ 
 class Produto:
-    def __init__(self):
+    def __init__(self, nome_produto:str, preco_compra:float|int, preco_venda:float|int, data_compra:str, data_vencimento:str, quantidade_estoque:int):
         self._nome_produto = None
         self._preco_compra = 0
         self._preco_venda = 0
         self._data_compra = None
         self._data_vencimento = None
         self._quantidade_estoque = 0
+
+        self.nome_produto = nome_produto
+        self.preco_compra = preco_compra
+        self.preco_venda = preco_venda
+        self.data_compra = data_compra
+        self.data_vencimento = data_vencimento
+        self.quantidade_estoque = quantidade_estoque
 
     @property
     def nome_produto(self):
@@ -37,8 +71,6 @@ class Produto:
                 self._nome_produto = valor
                     
             else:
-                #print('\nNome inválido!!')
-                #valor = input('\nPor favor digite um nome de produto válido: ')
                 raise ValueError('Nome de Produto Inválido')
         else:
             raise ValueError('Tipo de Dado Inválido')
@@ -72,9 +104,9 @@ class Produto:
     @data_compra.setter
     def data_compra(self, valor:str):
         try:
-            datetime.strptime(valor, "%d/%m/%Y")
+            valor = datetime.strptime(valor, "%d/%m/%Y")
             self._data_compra = valor
-        except ValueError:
+        except (ValueError, TypeError):
             raise ValueError('Data de Compra Inválida')
 
     @property
@@ -85,9 +117,9 @@ class Produto:
     def data_vencimento(self, valor:str):
         
         try:
-            datetime.strptime(valor, "%d/%m/%Y")
+            valor = datetime.strptime(valor, "%d/%m/%Y")
             self._data_vencimento = valor
-        except ValueError:
+        except (ValueError, TypeError):
             raise ValueError('Data de Vencimento Inválida')
 
     @property
@@ -96,7 +128,7 @@ class Produto:
 
     @quantidade_estoque.setter
     def quantidade_estoque(self, valor:int):
-        if isinstance(valor, int) and not isinstance(valor, bool) and valor > 0:
+        if isinstance(valor, int) and not isinstance(valor, bool) and valor >= 0:
             self._quantidade_estoque = valor
         else:
             raise ValueError('Quantidade inválida')
