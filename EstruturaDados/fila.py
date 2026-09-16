@@ -1,3 +1,5 @@
+from rich import inspect
+
 class No:
     def __init__(self, dado=None):
         self.dado = dado 
@@ -17,9 +19,30 @@ class Fila:
             self.fim = no_dado 
             
         else:
-            no_dado = No(dado) 
-            self.fim.proximo = no_dado 
-            self.fim = no_dado 
+
+            anterior = None
+            atual = self.inicio
+                
+            if dado.data_vencimento < atual.dado.data_vencimento:      
+                no_dado = No(dado)
+                self.inicio = no_dado
+                self.inicio.proximo = atual
+
+            else:
+                while atual:
+                    if dado.data_vencimento < atual.dado.data_vencimento:
+                        no_dado = No(dado)
+                        no_dado.proximo = atual
+                        anterior.proximo = no_dado
+                        break
+
+                    anterior = atual
+                    atual = atual.proximo
+
+                if atual == None:
+                    no_dado = No(dado)
+                    self.fim.proximo = no_dado
+                    self.fim = no_dado
 
         self.tamanho += 1
 
@@ -35,5 +58,5 @@ class Fila:
             return atual.dado
         else:
             return None
-           
-            
+
+          
