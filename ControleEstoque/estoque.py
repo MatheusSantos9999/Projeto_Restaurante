@@ -2,12 +2,13 @@ import re
 from EstruturaDados import lista_encadeada, fila
 from datetime import datetime
 
+
 class Estoque:
     def __init__(self):
-        self.lista = lista_encadeada.ListaEncadeada()
+        self._lista = lista_encadeada.ListaEncadeada()
 
     def repor_estoque(self, produto):
-        resultado = self.lista.buscar_dados(lambda item: item[0] == produto.nome_produto)
+        resultado = self._lista.buscar_dados(lambda item: item[0] == produto.nome_produto)
         
         if resultado is not None:
             resultado[1].enfileirar(produto)
@@ -15,28 +16,33 @@ class Estoque:
         else:
             fila_produto = fila.Fila()
             fila_produto.enfileirar(produto)
-            self.lista.adicionar_dados((produto.nome_produto,fila_produto))
+            self._lista.adicionar_dados((produto.nome_produto,fila_produto))
 
     def dar_baixa(self, nome_produto, quantidade_produto):
-        resultado = self.lista.buscar_dados(lambda item: item[0] == nome_produto)
+        resultado = self._lista.buscar_dados(lambda item: item[0] == nome_produto)
 
         if resultado is None:
             raise ValueError('O produto não existe no estoque')
 
-        else:
-            fila_do_produto = resultado[1]
-            lote_atual = fila_do_produto.inicio.dado
-            quantidade_restante = quantidade_produto
-            
-            while lote_atual:
-                if lote_atual.quantidade_estoque > quantidade_restante:
-                    lote_atual.quantidade_estoque -= quantidade_produto
-            
-                elif lote_atual.quantidade_estoque < quantidade_restante: 
-                   fila_do_produto.desenfileirar()
-                   break
+        fila_do_produto = resultado[1]
 
- 
+        lote_atual = fila_do_produto.inicio.dado if fila_do_produto.inicio else None
+        quantidade_restante = quantidade_produto
+
+        while lote_atual and quantidade_restante > 0:
+            if lote_atual.quantidade_estoque > quantidade_restante:
+                lote_atual.quantidade_estoque -= quantidade_restante
+                quantidade_restante = 0
+
+            else:
+                quantidade_restante -= lote_atual.quantidade_estoque
+                fila_do_produto.desenfileirar()
+                lote_atual = fila_do_produto.inicio.dado if fila_do_produto.inicio else None
+
+        if quantidade_restante > 0:
+            raise ValueError('Estoque insuficiente para atender a baixa solicitada')
+
+
 class Produto:
     def __init__(self, nome_produto:str, preco_compra:float|int, preco_venda:float|int, data_compra:str, data_vencimento:str, quantidade_estoque:int):
         self._nome_produto = None
@@ -132,4 +138,5 @@ class Produto:
             self._quantidade_estoque = valor
         else:
             raise ValueError('Quantidade inválida')
+
     

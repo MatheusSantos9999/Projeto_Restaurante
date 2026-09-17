@@ -69,7 +69,4 @@ class ListaEncadeada:
         else:
             return None
 
-                    
-
-
-
+    

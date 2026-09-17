@@ -1,13 +1,22 @@
-from ControleComanda import Comanda
-from EstruturaDados import lista_encadeada
+from ControleComanda import comanda
+from ControleEstoque import estoque
+from EstruturaDados import lista_encadeada, fila
 from GeradorFaker import gerador
 
+c = comanda.Comanda(1, "Maria Silva")
+print(c)
 
-clientes = gerador.gerador_cliente(20)
+produto = estoque.Produto("Coxinha de Frango", 3.50, 8.50, "01/09/2026", "25/09/2026", 50)
+print(produto)
+ 
+e = estoque.Estoque()
+e.repor_estoque(produto)
+print(e)
+
 lista = lista_encadeada.ListaEncadeada()
-
-for nome, numero in clientes:
-    cliente = Comanda.Comanda()
-    cliente.abrir_comanda(nome, numero)
-    lista.adicionar_dados(cliente)
+lista.adicionar_dados("item")
+print(lista)
+ 
+f = fila.Fila()
+print(f)
     

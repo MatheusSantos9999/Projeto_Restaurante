@@ -1,10 +1,9 @@
 from faker import Faker
 
-
 def gerador_cliente(numero):
 
     fk = Faker(locale='pt-BR')
-  
+
     lista_cliente = []
 
     num_comanda = 0
@@ -16,9 +15,4 @@ def gerador_cliente(numero):
         lista_cliente.append((nome, num_comanda))
 
     return lista_cliente
-
-
-    
-
-        
 
